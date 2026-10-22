@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="PriceTracker.App/PriceTracker.App.csproj" />
+  <Project Path="PriceTracker.Tests/PriceTracker.Tests.csproj" />
+</Solution>
