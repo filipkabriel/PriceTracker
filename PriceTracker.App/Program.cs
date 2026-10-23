@@ -18,8 +18,7 @@ namespace PriceTracker.App
 
             var serviceProvider = services.BuildServiceProvider();
             var scraper = serviceProvider.GetRequiredService<ISteamPriceScraper>();
-
-            // Testovací hry na Steamu:
+            
             // 1091500 = Cyberpunk 2077
             // 292030 = The Witcher 3
             Console.WriteLine(1091500);

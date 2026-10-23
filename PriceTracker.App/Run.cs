@@ -6,39 +6,50 @@ namespace PriceTracker.App;
 
 public static class Run
 {
-    private static readonly string[] selectionMainMenu = new[] { "Search game", "Wishlist", "Storage", "Settings" };
+    private static readonly string[] selectionMainMenu = new[] { "Search game", "Wishlist", "Storage", "Settings", "Quit" };
     public static void MainMenu()
     {
-        Console.WriteLine(">> CLI Steam PriceTracker <<");
-        Thread.Sleep(500);
-        Console.WriteLine();
-        Console.WriteLine("Pick your action: ");
-        Console.WriteLine();
-        switch (Select(selectionMainMenu))
+        bool program = true;
+        do
         {
-            case 0:
-                Console.Clear();
-                SearchGame();
-                break;
-            case 1:
-                Console.Clear();
-                Wishlist();
-                break;
-            case 2:
-                Console.Clear();
-                Storage();
-                break;
-            case 3:
-                Console.Clear();
-                Settings();
-                break;
-                
-        }
+            Console.WriteLine(">> CLI Steam PriceTracker <<");
+            Thread.Sleep(500);
+            Console.WriteLine();
+            Console.WriteLine("Pick your action: ");
+            Console.WriteLine();
+            switch (Select(selectionMainMenu))
+            {
+                case 0:
+                    Console.Clear();
+                    SearchGame();
+                    break;
+                case 1:
+                    Console.Clear();
+                    Wishlist();
+                    break;
+                case 2:
+                    Console.Clear();
+                    Storage();
+                    break;
+                case 3:
+                    Console.Clear();
+                    Settings();
+                    break;
+                case 4:
+                    program = false;
+                    break;
+            }
+        } while (program);
     }
     private static async Task SearchGame()
     {
         Console.WriteLine("Out of services");
         Console.ReadKey();
+        return;
+        Console.WriteLine("Type game name / game id or use filters or get help with ai");
+        Console.WriteLine();
+        string inputText = Console.ReadLine();
+        
     }
     private static void Wishlist()
     {
@@ -55,6 +66,7 @@ public static class Run
         Console.WriteLine("Out of services");
         Console.ReadKey();
     }
+    
     /// <summary>Select method for selecting choices</summary>
     /// <param name="string[] selection">Contains choices</param>
     /// <returns>Index of choice in []</returns>
