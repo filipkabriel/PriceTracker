@@ -82,7 +82,7 @@ public static class Run
                 }
             }
             Console.ResetColor();
-            key = Console.ReadKey().Key;
+            key = Console.ReadKey(true).Key;
             switch (key)
             {
                 case ConsoleKey.UpArrow:
