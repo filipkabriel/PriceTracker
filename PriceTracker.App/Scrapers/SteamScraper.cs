@@ -85,7 +85,6 @@ public class SteamScraper : ISteamPriceScraper
                 results.Add((id, name,  finalPrice, discountPercent));
             }
         }
-        
         return results;
     }
 }

@@ -19,6 +19,7 @@ public static class Run
         bool program = true;
         do
         {
+            Console.Clear();
             Console.WriteLine(">> CLI Steam PriceTracker <<");
             Thread.Sleep(100);
             Console.WriteLine();
@@ -28,7 +29,7 @@ public static class Run
             {
                 case 0:
                     Console.Clear();
-                    SearchGame();
+                    SearchMenu();
                     break;
                 case 1:
                     Console.Clear();
@@ -48,7 +49,10 @@ public static class Run
             }
         } while (program);
     }
-    private static async Task SearchGame()
+    /// <summary>
+    /// Search menu - User will select his action and type input. For dowloading and rendering data
+    /// </summary>
+    private static async Task SearchMenu()
     {
         var services = new ServiceCollection();
         services.AddHttpClient<ISteamPriceScraper, SteamScraper>(client =>
@@ -171,6 +175,10 @@ public static class Run
         } while (key != ConsoleKey.Enter && key != ConsoleKey.Spacebar);
         return index;
     }
+    /// <summary>
+    /// Method for input and still be able to write or cancel your input by pressing selected key/s
+    /// </summary>
+    /// <returns>Users input in string</returns>
     private static string? CancelReadInput()
     {
         Console.CursorVisible = true;
