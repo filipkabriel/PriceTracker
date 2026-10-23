@@ -173,6 +173,7 @@ public static class Run
     }
     private static string? CancelReadInput()
     {
+        Console.CursorVisible = true;
         StringBuilder input = new StringBuilder();
         while (true)
         {
