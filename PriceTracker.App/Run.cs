@@ -17,15 +17,19 @@ public static class Run
         switch (Select(selectionMainMenu))
         {
             case 0:
+                Console.Clear();
                 SearchGame();
                 break;
             case 1:
+                Console.Clear();
                 Wishlist();
                 break;
             case 2:
+                Console.Clear();
                 Storage();
                 break;
             case 3:
+                Console.Clear();
                 Settings();
                 break;
                 
@@ -33,23 +37,30 @@ public static class Run
     }
     private static async Task SearchGame()
     {
-        
+        Console.WriteLine("Out of services");
+        Console.ReadKey();
     }
     private static void Wishlist()
     {
-        
+        Console.WriteLine("Out of services");
+        Console.ReadKey();
     }
     private static void Storage()
     {
-        
+        Console.WriteLine("Out of services");
+        Console.ReadKey();
     }
     private static void Settings()
     {
-        
+        Console.WriteLine("Out of services");
+        Console.ReadKey();
     }
+    /// <summary>Select method for selecting choices</summary>
+    /// <param name="string[] selection">Contains choices</param>
+    /// <returns>Index of choice in []</returns>
     private static int Select(string[] selection)
     {
-        int id = 0;
+        int index = 0;
         ConsoleKey key;
         int top = Console.CursorTop;
         do
@@ -58,7 +69,7 @@ public static class Run
             Console.SetCursorPosition(0, top);
             for (int i = 0; i < selection.Length; i++)
             {
-                if (i == id)
+                if (i == index)
                 {
                     Console.BackgroundColor = ConsoleColor.White;
                     Console.ForegroundColor = ConsoleColor.Black;
@@ -76,16 +87,16 @@ public static class Run
             {
                 case ConsoleKey.UpArrow:
                 case ConsoleKey.W:
-                    id--;
-                    if (id < 0) id = selection.Length - 1;
+                    index--;
+                    if (index < 0) index = selection.Length - 1;
                     break;
                 case ConsoleKey.DownArrow:
                 case ConsoleKey.S:
-                    id++;
-                    if (id >= selection.Length) id = 0;
+                    index++;
+                    if (index >= selection.Length) index = 0;
                     break;
             }
         } while (key != ConsoleKey.Enter && key != ConsoleKey.Spacebar);
-        return id;
+        return index;
     }
 }
