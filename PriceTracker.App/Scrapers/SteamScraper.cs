@@ -30,7 +30,7 @@ public class SteamScraper : ISteamPriceScraper
 
         if (!success)
         {
-            throw new Exception($"Nepodařilo se načíst data pro Steam App ID: {appId}");
+            throw new Exception($"Failed to load data for Steam App ID: {appId}");
         }
 
         var data = root.GetProperty("data");
@@ -50,9 +50,42 @@ public class SteamScraper : ISteamPriceScraper
         return (finalPrice, discountPercent);
     }
 
-    public async Task<List<(int AppId,string Name)>> SearchGameAsync(string searchTerm)
+    public async Task<List<(int AppId, string Name, decimal Price, int DiscountPercent)>> SearchGameAsync(string searchTerm)
     {
-        List<(int AppId,string Name)> search = new List<(int AppId,string Name)>();
-        return search;
+        
+        var results = new List<(int AppId, string Name, decimal Price, int DiscountPercent)>();
+        if (string.IsNullOrWhiteSpace(searchTerm))  return results;
+        string encodedTerm = Uri.EscapeDataString(searchTerm);
+        string url = "https://store.steampowered.com/api/storesearch/?term=";
+        var response = await _httpClient.GetAsync(url);
+        response.EnsureSuccessStatusCode();
+        var json = await response.Content.ReadAsStringAsync();
+        using var doc = JsonDocument.Parse(json);
+        if (doc.RootElement.TryGetProperty("items", out var itemsElement) && 
+            itemsElement.ValueKind == JsonValueKind.Array)
+        {
+            foreach (var item in itemsElement.EnumerateArray())
+            {
+                int id = item.GetProperty("id").GetInt32();
+                string name = item.GetProperty("name").GetString() ?? string.Empty;
+                decimal finalPrice = 0m;
+                int discountPercent = 0;
+                if (item.TryGetProperty("price", out var priceElement))
+                {
+                    if (priceElement.TryGetProperty("final", out var finalProp))
+                    {
+                        finalPrice = finalProp.GetInt32() / 100m;
+                    }
+
+                    if (priceElement.TryGetProperty("discount_percent", out var discountProp))
+                    {
+                        discountPercent = discountProp.GetInt32();
+                    }
+                }
+                results.Add((id, name,  finalPrice, discountPercent));
+            }
+        }
+        
+        return results;
     }
 }
