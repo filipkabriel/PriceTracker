@@ -1,5 +1,4 @@
-﻿
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using PriceTracker.App.Scrapers;
 
 namespace PriceTracker.App
@@ -8,7 +7,7 @@ namespace PriceTracker.App
     {
         static async Task Main(string[] args)
         {
-            Console.WriteLine("=== Steam Price Tracker ===");
+            Run.MainMenu();
 
             var services = new ServiceCollection();
 
@@ -23,10 +22,13 @@ namespace PriceTracker.App
             // Testovací hry na Steamu:
             // 1091500 = Cyberpunk 2077
             // 292030 = The Witcher 3
-            int appId = 1091500;
+            Console.WriteLine(1091500);
+            Console.WriteLine(292030);
+            
 
             try
             {
+                int appId = Convert.ToInt32(Console.ReadLine());
                 Console.WriteLine($"Zjišťuji cenu pro App ID {appId}...");
                 var (price, discount) = await scraper.GetPriceAsync(appId);
 
