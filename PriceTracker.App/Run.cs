@@ -14,7 +14,7 @@ public static class Run
     /// <summary>
     /// Main menu for price tracker
     /// </summary>
-    public static async Task MainMenu()
+    public static async Task MainMenu(ISteamPriceScraper scraper)
     {
         bool program = true;
         do
@@ -29,7 +29,7 @@ public static class Run
             {
                 case 0:
                     Console.Clear();
-                    await SearchMenu();
+                    await SearchMenu(scraper);
                     break;
                 case 1:
                     Console.Clear();
@@ -52,15 +52,8 @@ public static class Run
     /// <summary>
     /// Search menu - User will select his action and type input. For dowloading and rendering data
     /// </summary>
-    private static async Task SearchMenu()
+    private static async Task SearchMenu(ISteamPriceScraper scraper)
     {
-        var services = new ServiceCollection();
-        services.AddHttpClient<ISteamPriceScraper, SteamScraper>(client =>
-        {
-            client.DefaultRequestHeaders.UserAgent.ParseAdd("PriceTrackerBot/1.0");
-        });
-        var serviceProvider = services.BuildServiceProvider();
-        var scraper = serviceProvider.GetRequiredService<ISteamPriceScraper>();
         Console.WriteLine(">> Search Menu <<");
         Thread.Sleep(100);
         Console.WriteLine();
