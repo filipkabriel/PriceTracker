@@ -56,7 +56,7 @@ public class SteamScraper : ISteamPriceScraper
         var results = new List<(int AppId, string Name, decimal Price, int DiscountPercent)>();
         if (string.IsNullOrWhiteSpace(searchTerm))  return results;
         string encodedTerm = Uri.EscapeDataString(searchTerm);
-        string url = "https://store.steampowered.com/api/storesearch/?term=";
+        string url = $"https://store.steampowered.com/api/storesearch/?term={encodedTerm}&l=czech&cc=CZ";
         var response = await _httpClient.GetAsync(url);
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();
