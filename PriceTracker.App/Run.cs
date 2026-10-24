@@ -72,13 +72,15 @@ public static class Run
                 Console.Clear();
                 Console.WriteLine("Write name of a game:");
                 Console.WriteLine();
-                var response = scraper.SearchGameAsync(CancelReadInput());
+                string input = CancelReadInput();
+                if (input == null) break;
+                var response = await scraper.SearchGameAsync(input);
                 Console.Clear();
                 Console.WriteLine("Founded games:");
                 Console.WriteLine();
-                for (int i = 0; i < response.Result.Count; i++)
+                for (int i = 0; i < response.Count; i++)
                 {
-                    Console.WriteLine($"{i+1}. Name: {response.Result[i].Name} Id: {response.Result[i].AppId} Price: {response.Result[i].CurrentPrice} EUR Discount: {response.Result[i].DiscountPercent} %");
+                    Console.WriteLine($"{i+1}. Name: {response[i].Name} Id: {response[i].AppId} Price: {response[i].CurrentPrice} EUR Discount: {response[i].DiscountPercent} %");
                 }
                 Console.WriteLine();
                 Console.WriteLine("Press any key to continue...");
