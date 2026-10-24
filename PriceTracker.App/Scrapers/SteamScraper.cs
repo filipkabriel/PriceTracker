@@ -1,5 +1,6 @@
 
 using System.Text.Json;
+using PriceTracker.App.Models;
 
 
 namespace PriceTracker.App.Scrapers;
@@ -49,11 +50,9 @@ public class SteamScraper : ISteamPriceScraper
 
         return (finalPrice, discountPercent);
     }
-
-    public async Task<List<(int AppId, string Name, decimal Price, int DiscountPercent)>> SearchGameAsync(string searchTerm)
+    public async Task<List<SteamGame>> SearchGameAsync(string searchTerm)
     {
-        
-        var results = new List<(int AppId, string Name, decimal Price, int DiscountPercent)>();
+        var results = new List<SteamGame>();
         if (string.IsNullOrWhiteSpace(searchTerm))  return results;
         string encodedTerm = Uri.EscapeDataString(searchTerm);
         string url = $"https://store.steampowered.com/api/storesearch/?term={encodedTerm}&l=czech&cc=CZ";
@@ -82,7 +81,7 @@ public class SteamScraper : ISteamPriceScraper
                         discountPercent = discountProp.GetInt32();
                     }
                 }
-                results.Add((id, name,  finalPrice, discountPercent));
+                results.Add(new SteamGame(id, name, finalPrice, discountPercent));
             }
         }
         return results;

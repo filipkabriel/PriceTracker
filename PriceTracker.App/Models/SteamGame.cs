@@ -7,4 +7,12 @@ public class SteamGame
     public decimal TargetPrice { get; set; }
     public decimal CurrentPrice { get; set; }
     public int DiscountPercent { get; set; }
+
+    public SteamGame(int appId,  string name, decimal currentPrice, int discountPercent)
+    {
+        this.AppId = appId;
+        this.Name = name;
+        this.CurrentPrice = currentPrice;
+        this.DiscountPercent = discountPercent;
+    }
 }

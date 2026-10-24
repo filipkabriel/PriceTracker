@@ -78,7 +78,7 @@ public static class Run
                 Console.WriteLine();
                 for (int i = 0; i < response.Result.Count; i++)
                 {
-                    Console.WriteLine($"{i+1}. Name: {response.Result[i].Name} Id: {response.Result[i].AppId} Price: {response.Result[i].Price} EUR Discount: {response.Result[i].DiscountPercent} %");
+                    Console.WriteLine($"{i+1}. Name: {response.Result[i].Name} Id: {response.Result[i].AppId} Price: {response.Result[i].CurrentPrice} EUR Discount: {response.Result[i].DiscountPercent} %");
                 }
                 Console.WriteLine();
                 Console.WriteLine("Press any key to continue...");
