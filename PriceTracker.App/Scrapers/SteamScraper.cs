@@ -6,7 +6,7 @@ namespace PriceTracker.App.Scrapers;
 
 public class SteamScraper : ISteamPriceScraper
 {
-    private readonly string langRegio = "&l=english&cc=CZ";
+    private readonly string _langRegio = "&l=english&cc=CZ";
     private readonly HttpClient _httpClient;
     public SteamScraper(HttpClient httpClient)
     {
@@ -14,7 +14,7 @@ public class SteamScraper : ISteamPriceScraper
     }
     public async Task<SteamGame> SearchGameIdAsync(int appId)
     {
-        string url = $"https://store.steampowered.com/api/appdetails?appids={appId}{langRegio}";
+        string url = $"https://store.steampowered.com/api/appdetails?appids={appId}{_langRegio}";
         var response = await _httpClient.GetAsync(url);
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();
@@ -47,7 +47,7 @@ public class SteamScraper : ISteamPriceScraper
         var results = new List<SteamGame>();
         if (string.IsNullOrWhiteSpace(searchTerm)) return results;
         string encodedTerm = Uri.EscapeDataString(searchTerm);
-        string url = $"https://store.steampowered.com/api/storesearch/?term={encodedTerm}{langRegio}";
+        string url = $"https://store.steampowered.com/api/storesearch/?term={encodedTerm}{_langRegio}";
         var response = await _httpClient.GetAsync(url);
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();

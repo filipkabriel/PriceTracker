@@ -1,18 +1,16 @@
-using System.ComponentModel;
-using System.ComponentModel.Design;
-using System.Data.SqlTypes;
 using System.Text;
-using Microsoft.Extensions.DependencyInjection;
+using PriceTracker.App.Models;
 using PriceTracker.App.Scrapers;
 
 namespace PriceTracker.App;
 
 public static class Run
 {
-    private static readonly string[] selectionSettings = new[] { "Manage storage", "Set AI", "Manage app", "Quit"};
-    private static readonly string[] selectionWishlist = new[] { "View wishilists", "Manage Wishlists", "Create new wishlist" };
-    private static readonly string[] selectionMainMenu = new[] { "Search game", "Wishlist", "History", "Settings", "Quit" };
-    private static readonly string[] selectionSearchMenu = new[] { "Search by game name", "Search by game id", "Filter games", "Search by ai" };
+    private static List<Wishlist> _wishlists = new List<Wishlist>();
+    private static readonly string[] SelectionSettings = new[] { "Manage storage", "Set AI", "Manage app"};
+    private static readonly string[] SelectionWishlist = new[] { "View and manage wishlists", "Create new wishlist" };
+    private static readonly string[] SelectionMainMenu = new[] { "Search game", "Wishlist", "History", "Settings", "Quit" };
+    private static readonly string[] SelectionSearchMenu = new[] { "Search by game name", "Search by game id", "Filter games", "Search by ai" };
     /// <summary>
     /// Main menu for price tracker
     /// </summary>
@@ -27,7 +25,7 @@ public static class Run
             Console.WriteLine();
             Console.WriteLine("Pick your action: ");
             Console.WriteLine();
-            switch (Select(selectionMainMenu))
+            switch (Select(SelectionMainMenu))
             {
                 case 0:
                     Console.Clear();
@@ -48,6 +46,9 @@ public static class Run
                 case 4:
                     program = false;
                     break;
+                default: 
+                    program = false;
+                    break;
             }
         } while (program);
     }
@@ -62,21 +63,49 @@ public static class Run
         Console.WriteLine();
         Console.WriteLine("Pick your action: ");
         Console.WriteLine();
-        switch (Select(selectionSearchMenu))
+        switch (Select(SelectionSearchMenu))
         {
             case 0:
                 Console.Clear();
                 Console.WriteLine("Write name of a game:");
                 Console.WriteLine();
-                string input = CancelReadInput();
+                string? input = CancelReadInput();
                 if (input == null) break;
                 var response = await scraper.SearchGameAsync(input);
                 Console.Clear();
                 Console.WriteLine("Founded games:");
                 Console.WriteLine();
-                for (int i = 0; i < response.Count; i++)
+                List<string> gameList = new List<string>();
+                foreach (var item in response)
                 {
-                    Console.WriteLine($"{i+1}. Name: {response[i].Name} Id: {response[i].AppId} Price: {response[i].CurrentPrice} EUR Discount: {response[i].DiscountPercent} %");
+                    gameList.Add($"Name: {item.Name} Id: {item.AppId} Price: {item.CurrentPrice} EUR EUR Discount: {item.DiscountPercent} %");
+                }
+                int index = Select(gameList.ToArray());
+                SteamGame game;
+                if (index !> response.Count) 
+                {
+                    game = response[index];
+                    Console.Clear();
+                    Console.WriteLine("Choose wishlist:");
+                    if (_wishlists.Count == 0)
+                    {
+                        Console.Clear();
+                        Console.WriteLine("First you must create wishlist");
+                        break;
+                    }
+                    List<string> wl = new List<string>();
+                    foreach (var item in _wishlists)
+                    {
+                        wl.Add(item.Name);
+                    }
+                    int indexWl = Select(wl.ToArray());
+                    if (indexWl ! > wl.Count)
+                    {
+                        _wishlists[indexWl].GameList.Add(game);
+                        Console.Clear();
+                        Console.WriteLine("Successfully added game to wishlist");
+                        Console.ReadKey();
+                    }
                 }
                 Console.WriteLine();
                 Console.WriteLine("Press any key to continue...");
@@ -106,22 +135,76 @@ public static class Run
             case 2:
                 Console.WriteLine("Out of services");
                 Console.ReadKey();
-                return;
                 Console.Clear();
                 break;
             case 3:
                 Console.WriteLine("Out of services");
                 Console.ReadKey();
-                return;
                 Console.Clear();
                 break;
         }
     }
+    /// <summary>
+    /// 
+    /// </summary>
     private static void Wishlist()
     {
-        Console.WriteLine("Out of services");
-        Console.ReadKey();
+        bool active = true;
+        do
+        {
+            Console.Clear();
+            Console.WriteLine(">> Wishlist <<");
+            Thread.Sleep(100);
+            Console.WriteLine();
+            Console.WriteLine("Pick your action: ");
+            Console.WriteLine();
+            switch (Select(SelectionWishlist))
+            {
+                case 0:
+                    Console.Clear();
+                    Console.WriteLine("Your wishlists:");
+                    Console.WriteLine();
+                    List<string> wlList = new List<string>();
+                    foreach (var wl in _wishlists)
+                    {
+                        wlList.Add(wl.Name);
+                    }
+                    int index =  Select(wlList.ToArray());
+                    if (index !> wlList.Count)
+                    {
+                        Console.Clear();
+                        Console.WriteLine($"Manage your {wlList[index]}");
+                        Console.ReadKey();
+                    }
+                    Console.WriteLine();
+                    Console.WriteLine("Press any key to continue...");
+                    Console.ReadKey();
+                    break;
+                case 1:
+                    Console.Clear();
+                    Console.WriteLine("Write name for your new wishlist:");
+                    Console.WriteLine();
+                    string? name = CancelReadInput();
+                    if (name == null) break;
+                    if (name.IsWhiteSpace())
+                    {
+                        name = $"Wishlist {_wishlists.Count + 1}";
+                    }
+                    Wishlist wishlist = new Wishlist(name);
+                    _wishlists.Add(wishlist);
+                    Console.WriteLine();
+                    Console.WriteLine("Press any key to continue...");
+                    Console.ReadKey();
+                    break;
+                default:
+                    active = false;
+                    break;
+            }
+        } while (active);
     }
+    /// <summary>
+    /// 
+    /// </summary>
     private static void History()
     {
         Console.WriteLine("Out of services");
@@ -141,7 +224,7 @@ public static class Run
             Console.WriteLine();
             Console.WriteLine("Pick your action: ");
             Console.WriteLine();
-            switch (Select(selectionSettings))
+            switch (Select(SelectionSettings))
             {
                 case 0:
                     Console.WriteLine("Out of services");
@@ -155,15 +238,16 @@ public static class Run
                     Console.WriteLine("Out of services");
                     Console.ReadKey();
                     break;
-                case 3:
+                default:
                     active = false;
                     break;
+                    
             }
         } while (active);
     }
     
     /// <summary>Select method for selecting choices</summary>
-    /// <param name="string[] selection">Contains choices</param>
+    /// <param name="selection">Contains choices</param>
     /// <returns>Index of choice in []</returns>
     private static int Select(string[] selection)
     {
@@ -202,6 +286,9 @@ public static class Run
                     index++;
                     if (index >= selection.Length) index = 0;
                     break;
+                case ConsoleKey.Escape:
+                    index = selection.Length; // for default
+                    return index;
             }
         } while (key != ConsoleKey.Enter && key != ConsoleKey.Spacebar);
         return index;
