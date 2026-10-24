@@ -9,6 +9,10 @@ namespace PriceTracker.App;
 
 public static class Run
 {
+    private static readonly string[] selectionSettings = new[] { "Set region", "Manage storage", "Set AI", "Manage app", "Quit"};
+    private static string currentLangRegion;
+    private static readonly string[] settingsLangRegion = new[] { "&l=czech&cc=CZ", "&l=slovak&cc=SK", "&l=polish&cc=PL", "&l=german&cc=DE", "&l=english&cc=US", "&l=english&cc=GB", "&l=french&cc=FR", "&l=ukrainian&cc=UA", "&l=italian&cc=IT", "&l=japanese&cc=JP" };
+    private static readonly string[] selectionWishlist = new[] { "View wishilists", "Manage Wishlists", "Create new wishlist" };
     private static readonly string[] selectionMainMenu = new[] { "Search game", "Wishlist", "History", "Settings", "Quit" };
     private static readonly string[] selectionSearchMenu = new[] { "Search by game name", "Search by game id", "Filter games", "Search by ai" };
     /// <summary>
@@ -54,6 +58,7 @@ public static class Run
     /// </summary>
     private static async Task SearchMenu(ISteamPriceScraper scraper)
     {
+        Console.Clear();
         Console.WriteLine(">> Search Menu <<");
         Thread.Sleep(100);
         Console.WriteLine();
@@ -67,7 +72,7 @@ public static class Run
                 Console.WriteLine();
                 string input = CancelReadInput();
                 if (input == null) break;
-                var response = await scraper.SearchGameAsync(input);
+                var response = await scraper.SearchGameAsync(input, currentLangRegion);
                 Console.Clear();
                 Console.WriteLine("Founded games:");
                 Console.WriteLine();
@@ -87,7 +92,7 @@ public static class Run
                 {
                     int appId = Convert.ToInt32(Console.ReadLine());
                     Console.WriteLine($"Checking price for App ID {appId}...");
-                    var item = await scraper.SearchGameIdAsync(appId);
+                    var item = await scraper.SearchGameIdAsync(appId, currentLangRegion);
                     Console.Clear();
                     Console.WriteLine($"Name: {item.Name}");
                     Console.WriteLine($"Current price: {item.CurrentPrice} EUR");
@@ -124,10 +129,50 @@ public static class Run
         Console.WriteLine("Out of services");
         Console.ReadKey();
     }
+    /// <summary>
+    /// 
+    /// </summary>
     private static void Settings()
     {
-        Console.WriteLine("Out of services");
-        Console.ReadKey();
+        bool active = true;
+        do
+        {
+            Console.Clear();
+            Console.WriteLine(">> Settings <<");
+            Thread.Sleep(100);
+            Console.WriteLine();
+            Console.WriteLine("Pick your action: ");
+            Console.WriteLine();
+            switch (Select(selectionSettings))
+            {
+                case 0:
+                    Console.Clear();
+                    Console.WriteLine("Set your region");
+                    Console.WriteLine();
+                    currentLangRegion = settingsLangRegion[Select(settingsLangRegion)];
+                    Console.Clear();
+                    Console.WriteLine($"Current region: {currentLangRegion}");
+                    Console.WriteLine();
+                    Console.WriteLine("Press any key to continue...");
+                    Console.ReadKey();
+                    break;
+                case 1:
+                    Console.WriteLine("Out of services");
+                    Console.ReadKey();
+                    break;
+                case 2:
+                    Console.WriteLine("Out of services");
+                    Console.ReadKey();
+                    break;
+                case 3:
+                    Console.WriteLine("Out of services");
+                    Console.ReadKey();
+                    break;
+                case 4:
+                    active = false;
+                    break;
+            }
+        } while (active);
     }
     
     /// <summary>Select method for selecting choices</summary>

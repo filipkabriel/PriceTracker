@@ -14,9 +14,9 @@ public class SteamScraper : ISteamPriceScraper
         _httpClient = httpClient;
     }
 
-    public async Task<SteamGame> SearchGameIdAsync(int appId)
+    public async Task<SteamGame> SearchGameIdAsync(int appId, string region)
     {
-        string url = $"https://store.steampowered.com/api/appdetails?appids={appId}&cc=cz";
+        string url = $"https://store.steampowered.com/api/appdetails?appids={appId}{region}";
         var response = await _httpClient.GetAsync(url);
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();
@@ -44,17 +44,18 @@ public class SteamScraper : ISteamPriceScraper
         string name = data.GetProperty("name").GetString() ?? string.Empty;
         return new SteamGame(appId, name, finalPrice, discountPercent);
     }
-    public async Task<List<SteamGame>> SearchGameAsync(string searchTerm)
+
+    public async Task<List<SteamGame>> SearchGameAsync(string searchTerm, string region)
     {
         var results = new List<SteamGame>();
-        if (string.IsNullOrWhiteSpace(searchTerm))  return results;
+        if (string.IsNullOrWhiteSpace(searchTerm)) return results;
         string encodedTerm = Uri.EscapeDataString(searchTerm);
-        string url = $"https://store.steampowered.com/api/storesearch/?term={encodedTerm}&l=czech&cc=CZ";
+        string url = $"https://store.steampowered.com/api/storesearch/?term={encodedTerm}{region}";
         var response = await _httpClient.GetAsync(url);
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();
         using var doc = JsonDocument.Parse(json);
-        if (doc.RootElement.TryGetProperty("items", out var itemsElement) && 
+        if (doc.RootElement.TryGetProperty("items", out var itemsElement) &&
             itemsElement.ValueKind == JsonValueKind.Array)
         {
             foreach (var item in itemsElement.EnumerateArray())
@@ -75,9 +76,11 @@ public class SteamScraper : ISteamPriceScraper
                         discountPercent = discountProp.GetInt32();
                     }
                 }
+
                 results.Add(new SteamGame(id, name, finalPrice, discountPercent));
             }
         }
+
         return results;
     }
 }
