@@ -1,4 +1,3 @@
-
 using System.Text.Json;
 using PriceTracker.App.Models;
 
@@ -7,16 +6,15 @@ namespace PriceTracker.App.Scrapers;
 
 public class SteamScraper : ISteamPriceScraper
 {
+    private readonly string langRegio = "&l=english&cc=CZ";
     private readonly HttpClient _httpClient;
-
     public SteamScraper(HttpClient httpClient)
     {
         _httpClient = httpClient;
     }
-
-    public async Task<SteamGame> SearchGameIdAsync(int appId, string region)
+    public async Task<SteamGame> SearchGameIdAsync(int appId)
     {
-        string url = $"https://store.steampowered.com/api/appdetails?appids={appId}{region}";
+        string url = $"https://store.steampowered.com/api/appdetails?appids={appId}{langRegio}";
         var response = await _httpClient.GetAsync(url);
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();
@@ -44,13 +42,12 @@ public class SteamScraper : ISteamPriceScraper
         string name = data.GetProperty("name").GetString() ?? string.Empty;
         return new SteamGame(appId, name, finalPrice, discountPercent);
     }
-
-    public async Task<List<SteamGame>> SearchGameAsync(string searchTerm, string region)
+    public async Task<List<SteamGame>> SearchGameAsync(string searchTerm)
     {
         var results = new List<SteamGame>();
         if (string.IsNullOrWhiteSpace(searchTerm)) return results;
         string encodedTerm = Uri.EscapeDataString(searchTerm);
-        string url = $"https://store.steampowered.com/api/storesearch/?term={encodedTerm}{region}";
+        string url = $"https://store.steampowered.com/api/storesearch/?term={encodedTerm}{langRegio}";
         var response = await _httpClient.GetAsync(url);
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync();
@@ -80,7 +77,6 @@ public class SteamScraper : ISteamPriceScraper
                 results.Add(new SteamGame(id, name, finalPrice, discountPercent));
             }
         }
-
         return results;
     }
 }
