@@ -7,7 +7,7 @@ namespace PriceTracker.App
     {
         static async Task Main(string[] args)
         {
-            Run.MainMenu();
+            await Run.MainMenu();
         }
     }
 }

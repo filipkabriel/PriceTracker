@@ -14,7 +14,7 @@ public static class Run
     /// <summary>
     /// Main menu for price tracker
     /// </summary>
-    public static void MainMenu()
+    public static async Task MainMenu()
     {
         bool program = true;
         do
@@ -29,7 +29,7 @@ public static class Run
             {
                 case 0:
                     Console.Clear();
-                    SearchMenu();
+                    await SearchMenu();
                     break;
                 case 1:
                     Console.Clear();
@@ -92,10 +92,11 @@ public static class Run
                 {
                     int appId = Convert.ToInt32(Console.ReadLine());
                     Console.WriteLine($"Checking price for App ID {appId}...");
-                    var (price, discount) = await scraper.GetPriceAsync(appId);
-
-                    Console.WriteLine($"Current price: {price} EUR");
-                    Console.WriteLine($"Discount: {discount} %");
+                    var item = await scraper.SearchGameIdAsync(appId);
+                    Console.Clear();
+                    Console.WriteLine($"Name: {item.Name}");
+                    Console.WriteLine($"Current price: {item.CurrentPrice} EUR");
+                    Console.WriteLine($"Discount: {item.DiscountPercent} %");
                 }
                 catch (Exception ex)
                 {
