@@ -72,6 +72,12 @@ public static class Run
                 string? input = CancelReadInput();
                 if (input == null) break;
                 var response = await scraper.SearchGameAsync(input);
+                if(response.Count == 0)
+                {
+                    Console.WriteLine("Zero games founded");
+                    Console.ReadKey();
+                    break;
+                }
                 Console.Clear();
                 Console.WriteLine("Founded games:");
                 Console.WriteLine();
@@ -82,7 +88,7 @@ public static class Run
                 }
                 int index = Select(gameList.ToArray());
                 SteamGame game;
-                if (index !> response.Count) 
+                if (index < gameList.Count) 
                 {
                     game = response[index];
                     Console.Clear();
@@ -91,6 +97,7 @@ public static class Run
                     {
                         Console.Clear();
                         Console.WriteLine("First you must create wishlist");
+                        Console.ReadKey();
                         break;
                     }
                     List<string> wl = new List<string>();
@@ -99,12 +106,13 @@ public static class Run
                         wl.Add(item.Name);
                     }
                     int indexWl = Select(wl.ToArray());
-                    if (indexWl ! > wl.Count)
+                    if (indexWl < wl.Count)
                     {
                         _wishlists[indexWl].GameList.Add(game);
                         Console.Clear();
                         Console.WriteLine("Successfully added game to wishlist");
                         Console.ReadKey();
+                        break;
                     }
                 }
                 Console.WriteLine();
