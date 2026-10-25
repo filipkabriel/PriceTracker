@@ -13,13 +13,6 @@
 * ** Terminal ASCII Price Charts:** View historical price trends for any tracked game with a color-coded console chart showing up to the last 15 price records with timestamps and dates.
 * ** Interactive Keyboard Menu:** Navigate smoothly without typing numbers—use arrows/WASD to highlight options and `ESC` to go back or cancel input at any time.
 
----
-
-##  Screenshots
-
-> *(TODO: Nahraj sem screenshot hlavního menu, vyhledávání a grafu!)*
-> `![Main Menu](screenshots/menu.png)`
-> `![Price Chart](screenshots/chart.png)`
 
 ---
 
