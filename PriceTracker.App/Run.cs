@@ -6,6 +6,7 @@ namespace PriceTracker.App;
 
 public static class Run
 {
+    private static TimeSpan _interval = TimeSpan.FromHours(2);
     private static List<Wishlist> _wishlists = new List<Wishlist>();
     private static readonly string[] SelectionSettings = new[] { "Manage storage", "Set AI", "Manage app"};
     private static readonly string[] SelectionWishlist = new[] { "View and manage wishlists", "Create new wishlist" };
@@ -16,6 +17,7 @@ public static class Run
     /// </summary>
     public static async Task MainMenu(ISteamPriceScraper scraper)
     {
+        PriceHistoryManager.StartBackgroundTracking(scraper, _wishlists, _interval);
         bool program = true;
         do
         {
@@ -37,7 +39,7 @@ public static class Run
                     break;
                 case 2:
                     Console.Clear();
-                    History();
+                    await History();
                     break;
                 case 3:
                     Console.Clear();
@@ -213,9 +215,28 @@ public static class Run
     /// <summary>
     /// 
     /// </summary>
-    private static void History()
+    private static async Task History()
     {
-        Console.WriteLine("Out of services");
+        Console.Clear();
+        Console.WriteLine(">> Price History <<\n");
+        var records = await PriceHistoryManager.LoadHistoryAsync();
+        if (records.Count == 0)
+        {
+            Console.WriteLine("No price history saved yet.");
+            Console.ReadKey();
+            return;
+        }
+        var games = records
+            .GroupBy(r => r.AppId)
+            .Select(g => new { AppId = g.Key, Name = g.First().GameName, Points = g.OrderBy(x => x.Timestamp).ToList() })
+            .ToList();
+        Console.WriteLine("Select game to view price chart:\n");
+        string[] gameNames = games.Select(g => $"{g.Name} ({g.Points.Count} records)").ToArray();
+        int selectedIndex = Select(gameNames);
+        if (selectedIndex >= games.Count) return;
+        var selectedGame = games[selectedIndex];
+        DrawPriceChart(selectedGame.Name, selectedGame.Points);
+        Console.WriteLine("\nPress any key to return...");
         Console.ReadKey();
     }
     /// <summary>
@@ -253,7 +274,68 @@ public static class Run
             }
         } while (active);
     }
-    
+    private static void DrawPriceChart(string gameName, List<PriceRecord> points)
+{
+    Console.Clear();
+    Console.WriteLine($">> Price Chart: {gameName} <<\n");
+    var displayPoints = points.TakeLast(15).ToList();
+    decimal maxPrice = displayPoints.Max(p => p.Price);
+    decimal minPrice = displayPoints.Min(p => p.Price);
+    if (maxPrice == minPrice)
+    {
+        maxPrice += 5m;
+        minPrice = Math.Max(0m, minPrice - 5m);
+    }
+
+    int chartHeight = 10; // Height
+
+    // Y
+    for (int row = chartHeight; row >= 0; row--)
+    {
+        decimal rowPrice = minPrice + (maxPrice - minPrice) * row / chartHeight;
+        Console.Write($"{rowPrice,7:F2} EUR | ");
+
+        foreach (var pt in displayPoints)
+        {
+            int pointRow = (int)Math.Round((pt.Price - minPrice) / (maxPrice - minPrice) * chartHeight);
+            if (pointRow == row)
+            {
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.Write("  ●  ");
+                Console.ResetColor();
+            }
+            else if (pointRow > row)
+            {
+                Console.ForegroundColor = ConsoleColor.DarkGreen;
+                Console.Write("  │  ");
+                Console.ResetColor();
+            }
+            else
+            {
+                Console.Write("     ");
+            }
+        }
+        Console.WriteLine();
+    }
+
+    // Bottom X
+    Console.WriteLine("            +" + new string('-', displayPoints.Count * 5));
+
+    // Time labels under X (HH:mm and dey.month)
+    Console.Write("       Time | ");
+    foreach (var pt in displayPoints)
+    {
+        Console.Write($"{pt.Timestamp:HH:mm}");
+    }
+    Console.WriteLine();
+
+    Console.Write("       Date | ");
+    foreach (var pt in displayPoints)
+    {
+        Console.Write($"{pt.Timestamp:dd.MM}");
+    }
+    Console.WriteLine();
+}
     /// <summary>Select method for selecting choices</summary>
     /// <param name="selection">Contains choices</param>
     /// <returns>Index of choice in []</returns>
